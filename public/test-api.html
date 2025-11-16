@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test API Authentication</h1>
+    
+    <div>
+        <h3>Test Login</h3>
+        <button onclick="testLogin()">Test Login Admin</button>
+        <button onclick="testLoginCustomer()">Test Login Customer</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div>
+        <h3>Test Public API</h3>
+        <button onclick="testCategories()">Test Categories</button>
+        <button onclick="testProducts()">Test Products</button>
+        <div id="api-result"></div>
+    </div>
+
+    <script>
+        function testLogin() {
+            $.ajax({
+                url: '/api/auth/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ten_dang_nhap: 'admin',
+                    mat_khau: '123456'
+                }),
+                success: function(response) {
+                    $('#login-result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr) {
+                    $('#login-result').html('<pre>Error: ' + xhr.responseText + '</pre>');
+                }
+            });
+        }
+
+        function testLoginCustomer() {
+            $.ajax({
+                url: '/api/auth/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ten_dang_nhap: 'khachhang1',
+                    mat_khau: '123456'
+                }),
+                success: function(response) {
+                    $('#login-result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr) {
+                    $('#login-result').html('<pre>Error: ' + xhr.responseText + '</pre>');
+                }
+            });
+        }
+
+        function testCategories() {
+            $.ajax({
+                url: '/api/public/danh-muc',
+                method: 'GET',
+                success: function(response) {
+                    $('#api-result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr) {
+                    $('#api-result').html('<pre>Error: ' + xhr.responseText + '</pre>');
+                }
+            });
+        }
+
+        function testProducts() {
+            $.ajax({
+                url: '/api/public/san-pham',
+                method: 'GET',
+                success: function(response) {
+                    $('#api-result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr) {
+                    $('#api-result').html('<pre>Error: ' + xhr.responseText + '</pre>');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

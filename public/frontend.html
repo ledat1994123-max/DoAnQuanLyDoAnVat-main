@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering System - Trang chủ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #f7931e;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .category-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .price {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .cart-count {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+        window.location.href = "login.html";
+    }
+    </script>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#home">
+                <i class="fas fa-utensils me-2"></i>Food Ordering
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#products">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#categories">Danh mục</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#cart" id="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count" id="cart-count">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="auth-link" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-user"></i> <span id="auth-text">Đăng nhập</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">Chào mừng đến Food Ordering System</h1>
+            <p class="lead mb-4">Khám phá hàng trăm món ăn ngon với công nghệ API hiện đại</p>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control form-control-lg" placeholder="Tìm kiếm món ăn..." id="search-input">
+                        <button class="btn btn-light btn-lg" type="button" onclick="searchProducts()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Đang tải dữ liệu từ API...</p>
+    </div>
+
+    <!-- Categories Section -->
+    <section id="categories" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Danh mục sản phẩm</h2>
+            <div class="row" id="categories-container">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section id="products" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Sản phẩm nổi bật</h2>
+            <div class="row" id="products-container">
+                <!-- Products will be loaded here -->
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-primary btn-lg" onclick="loadMoreProducts()">
+                    <i class="fas fa-plus-circle me-2"></i>Xem thêm sản phẩm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="cart-content">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <div class="me-auto">
+                        <strong>Tổng: <span id="cart-total">0₫</span></strong>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary">Đặt hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="product-modal-title">Chi tiết sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="product-modal-content">
+                    <!-- Product details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="text-center">
+                        <small class="text-muted">Chưa có tài khoản? </small>
+                        <a href="#" onclick="showRegisterModal()">Đăng ký ngay</a>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">Tài khoản demo:</small><br>
+                        <small><strong>Username:</strong> admin | <strong>Password:</strong> admin123</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="reg_username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="reg_username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="reg_password" required minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="reg_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_phone" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="reg_phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="reg_email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="reg_address" rows="2"></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="text-center">
+                        <small class="text-muted">Đã có tài khoản? </small>
+                        <a href="#" onclick="showLoginModal()">Đăng nhập ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user me-2"></i>Thông tin tài khoản
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="profile-content">
+                    <!-- Profile content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-utensils me-2"></i>Food Ordering System</h5>
+                    <p>Hệ thống đặt món ăn với API hiện đại</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>API Server: <strong>http://127.0.0.1:8001/api</strong></p>
+                    <p>© 2025 Food Ordering System</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://127.0.0.1:8001/api';
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let allProducts = [];
+        let allCategories = [];
+
+        // Authentication variables
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let authToken = localStorage.getItem('authToken') || null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadFeaturedProducts();
+            updateCartCount();
+            
+            // Setup cart modal
+            document.getElementById('cart-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showCartModal();
+            });
+
+            // Authentication setup
+            updateAuthUI();
+            setupAuthForms();
+        });
+
+        // Show loading
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Load categories from API
+        async function loadCategories() {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/danh-muc`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allCategories = data.data;
+                    renderCategories(data.data);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                document.getElementById('categories-container').innerHTML = 
+                    `<div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Không thể tải danh mục. Vui lòng kiểm tra API server.
+                        </div>
+                    </div>`;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Render categories
+        function renderCategories(categories) {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const categoryHtml = `
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <div class="card category-card h-100 text-center" onclick="loadCategoryProducts(${category.ma_danh_muc})">
+                            <div class="card-body">
+                                <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">${category.ten_danh_muc}</h5>
+                                <p class="text-muted">${category.san_pham_count || 0} sản phẩm</p>
+                                <div class="mt-3">
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Xem sản phẩm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += categoryHtml;
+            });
+        }
+
+        // Load featured products from API
+        async function loadFeaturedProducts() {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/san-pham/noi-bat`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allProducts = data.data;
+                    renderProducts(data.data);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products-container').innerHTML = 
+                    `<div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Không thể tải sản phẩm. Vui lòng kiểm tra API server.
+                        </div>
+                    </div>`;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Render products
+        function renderProducts(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            products.forEach(product => {
+                const hasDiscount = product.khuyen_mai_san_pham && product.khuyen_mai_san_pham.length > 0;
+                const price = hasDiscount ? product.gia_khuyen_mai : product.don_gia;
+                const originalPrice = hasDiscount ? product.don_gia : null;
+
+                const productHtml = `
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="${product.url_hinh_anh || '/images/no-image.jpg'}" 
+                                     class="card-img-top" alt="${product.ten_san_pham}"
+                                     style="height: 200px; object-fit: cover;">
+                                ${hasDiscount ? `<span class="badge bg-danger position-absolute top-0 start-0 m-2">Giảm giá</span>` : ''}
+                                ${product.ton_kho <= 5 ? `<span class="badge bg-warning position-absolute top-0 end-0 m-2">Sắp hết</span>` : ''}
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title">${product.ten_san_pham}</h6>
+                                <p class="card-text text-muted small flex-grow-1">${product.mo_ta || 'Không có mô tả'}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            ${originalPrice ? `<small class="text-decoration-line-through text-muted">${formatPrice(originalPrice)}</small><br>` : ''}
+                                            <span class="price">${formatPrice(price)}</span>
+                                        </div>
+                                        <small class="text-muted">${product.don_vi || 'cái'}</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm flex-grow-1" 
+                                                onclick="showProductDetail(${product.ma_san_pham})">
+                                            <i class="fas fa-eye me-1"></i>Xem
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" 
+                                                onclick="addToCart(${product.ma_san_pham})"
+                                                ${product.ton_kho <= 0 ? 'disabled' : ''}>
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productHtml;
+            });
+        }
+
+        // Load products by category
+        async function loadCategoryProducts(categoryId) {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/danh-muc/${categoryId}/san-pham`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderProducts(data.data.san_pham.data);
+                    // Scroll to products section
+                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading category products:', error);
+                alert('Không thể tải sản phẩm theo danh mục');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show product detail modal
+        async function showProductDetail(productId) {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/san-pham/${productId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const product = data.data;
+                    const hasDiscount = product.khuyen_mai_san_pham && product.khuyen_mai_san_pham.length > 0;
+                    const price = hasDiscount ? product.gia_khuyen_mai : product.don_gia;
+                    const originalPrice = hasDiscount ? product.don_gia : null;
+
+                    document.getElementById('product-modal-title').textContent = product.ten_san_pham;
+                    document.getElementById('product-modal-content').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="${product.url_hinh_anh || '/images/no-image.jpg'}" 
+                                     class="img-fluid rounded" alt="${product.ten_san_pham}">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>${product.ten_san_pham}</h4>
+                                <p class="text-muted">${product.mo_ta || 'Không có mô tả'}</p>
+                                <div class="mb-3">
+                                    ${originalPrice ? `<small class="text-decoration-line-through text-muted">${formatPrice(originalPrice)}</small><br>` : ''}
+                                    <span class="price fs-4">${formatPrice(price)}</span>
+                                    <span class="text-muted ms-2">/${product.don_vi || 'cái'}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge ${product.ton_kho > 0 ? 'bg-success' : 'bg-danger'}">
+                                        ${product.ton_kho > 0 ? `Còn ${product.ton_kho} sản phẩm` : 'Hết hàng'}
+                                    </span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Danh mục:</strong> ${product.danh_muc ? product.danh_muc.ten_danh_muc : 'Không xác định'}
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <input type="number" class="form-control" id="quantity-${productId}" 
+                                           value="1" min="1" max="${product.ton_kho}" style="width: 80px;">
+                                    <button class="btn btn-primary" onclick="addToCart(${productId}, document.getElementById('quantity-${productId}').value)"
+                                            ${product.ton_kho <= 0 ? 'disabled' : ''}>
+                                        <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    new bootstrap.Modal(document.getElementById('productModal')).show();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading product detail:', error);
+                alert('Không thể tải chi tiết sản phẩm');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Add product to cart
+        function addToCart(productId, quantity = 1) {
+            quantity = parseInt(quantity);
+            const product = allProducts.find(p => p.ma_san_pham == productId);
+            
+            if (!product) {
+                alert('Không tìm thấy sản phẩm');
+                return;
+            }
+
+            if (product.ton_kho < quantity) {
+                alert('Số lượng sản phẩm không đủ trong kho');
+                return;
+            }
+
+            const existingItem = cart.find(item => item.ma_san_pham == productId);
+            if (existingItem) {
+                existingItem.so_luong += quantity;
+            } else {
+                cart.push({
+                    ma_san_pham: product.ma_san_pham,
+                    ten_san_pham: product.ten_san_pham,
+                    don_gia: product.don_gia,
+                    gia_khuyen_mai: product.gia_khuyen_mai,
+                    so_luong: quantity,
+                    url_hinh_anh: product.url_hinh_anh,
+                    don_vi: product.don_vi
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            
+            // Show success message
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i>Đã thêm ${product.ten_san_pham} vào giỏ hàng
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            new bootstrap.Toast(toast).show();
+            
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.so_luong, 0);
+            document.getElementById('cart-count').textContent = totalItems;
+        }
+
+        // Show cart modal
+        function showCartModal() {
+            if (cart.length === 0) {
+                document.getElementById('cart-content').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Giỏ hàng của bạn đang trống</p>
+                    </div>
+                `;
+                document.getElementById('cart-total').textContent = '0₫';
+            } else {
+                let cartHtml = '';
+                let total = 0;
+
+                cart.forEach((item, index) => {
+                    const price = item.gia_khuyen_mai || item.don_gia;
+                    const itemTotal = price * item.so_luong;
+                    total += itemTotal;
+
+                    cartHtml += `
+                        <div class="d-flex align-items-center mb-3 p-3 border rounded">
+                            <img src="${item.url_hinh_anh || '/images/no-image.jpg'}" 
+                                 alt="${item.ten_san_pham}" style="width: 60px; height: 60px; object-fit: cover;"
+                                 class="rounded me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${item.ten_san_pham}</h6>
+                                <small class="text-muted">${formatPrice(price)}/${item.don_vi || 'cái'}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="updateCartQuantity(${index}, -1)">-</button>
+                                <span class="mx-2">${item.so_luong}</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="updateCartQuantity(${index}, 1)">+</button>
+                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="ms-3">
+                                <strong>${formatPrice(itemTotal)}</strong>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('cart-content').innerHTML = cartHtml;
+                document.getElementById('cart-total').textContent = formatPrice(total);
+            }
+
+            new bootstrap.Modal(document.getElementById('cartModal')).show();
+        }
+
+        // Update cart quantity
+        function updateCartQuantity(index, change) {
+            cart[index].so_luong += change;
+            if (cart[index].so_luong <= 0) {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showCartModal(); // Refresh modal
+        }
+
+        // Remove from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showCartModal(); // Refresh modal
+        }
+
+        // Search products
+        async function searchProducts() {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            if (!searchTerm) {
+                loadFeaturedProducts();
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/san-pham?search=${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderProducts(data.data.data);
+                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error searching products:', error);
+                alert('Không thể tìm kiếm sản phẩm');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load more products
+        async function loadMoreProducts() {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/public/san-pham?per_page=20`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allProducts = data.data.data;
+                    renderProducts(data.data.data);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading more products:', error);
+                alert('Không thể tải thêm sản phẩm');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price);
+        }
+
+        // Handle Enter key in search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        // Update authentication UI
+        function updateAuthUI() {
+            const authLink = document.getElementById('auth-link');
+            const authText = document.getElementById('auth-text');
+            
+            if (currentUser && authToken) {
+                // User is logged in - hiển thị tên user
+                authText.textContent = currentUser.ten_khach_hang || currentUser.ten_dang_nhap;
+                authLink.removeAttribute('data-bs-target');
+                authLink.removeAttribute('data-bs-toggle');
+                authLink.onclick = function(e) {
+                    e.preventDefault();
+                    showProfileModal();
+                };
+            } else {
+                // User is not logged in - hiển thị "Đăng nhập"
+                authText.textContent = 'Đăng nhập';
+                authLink.setAttribute('data-bs-toggle', 'modal');
+                authLink.setAttribute('data-bs-target', '#loginModal');
+                authLink.onclick = null;
+            }
+        }
+
+        // Setup authentication forms
+        function setupAuthForms() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Register form
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                showToast('Vui lòng nhập đầy đủ thông tin', 'error');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ten_dang_nhap: username,
+                        mat_khau: password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Save authentication data
+                    authToken = data.data.token;
+                    currentUser = data.data.thong_tin || { 
+                        ten_dang_nhap: data.data.tai_khoan.ten_dang_nhap,
+                        ten_khach_hang: data.data.tai_khoan.ten_dang_nhap // Fallback tên hiển thị
+                    };
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update UI
+                    updateAuthUI();
+                    
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    
+                    // Show success message
+                    showToast(`Chào mừng ${currentUser.ten_khach_hang || currentUser.ten_dang_nhap}!`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('loginForm').reset();
+                } else {
+                    showToast(data.message || 'Đăng nhập thất bại', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Có lỗi xảy ra khi đăng nhập', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Handle register
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const formData = {
+                ten_dang_nhap: document.getElementById('reg_username').value.trim(),
+                mat_khau: document.getElementById('reg_password').value.trim(),
+                ten_khach_hang: document.getElementById('reg_name').value.trim(),
+                so_dien_thoai: document.getElementById('reg_phone').value.trim(),
+                email: document.getElementById('reg_email').value.trim(),
+                dia_chi: document.getElementById('reg_address').value.trim()
+            };
+            
+            // Basic validation
+            if (!formData.ten_dang_nhap || !formData.mat_khau || !formData.ten_khach_hang) {
+                showToast('Vui lòng nhập đầy đủ thông tin bắt buộc', 'error');
+                return;
+            }
+            
+            if (formData.mat_khau.length < 6) {
+                showToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Close register modal
+                    bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                    
+                    // Show success message
+                    showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    
+                    // Show login modal
+                    setTimeout(() => {
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                        document.getElementById('username').value = formData.ten_dang_nhap;
+                    }, 1000);
+                } else {
+                    showToast(data.message || 'Đăng ký thất bại', 'error');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showToast('Có lỗi xảy ra khi đăng ký', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show register modal
+        function showRegisterModal() {
+            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            setTimeout(() => {
+                new bootstrap.Modal(document.getElementById('registerModal')).show();
+            }, 300);
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+            setTimeout(() => {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }, 300);
+        }
+
+        // Show profile modal
+        function showProfileModal() {
+            if (!currentUser || !authToken) {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+                return;
+            }
+
+            const profileContent = document.getElementById('profile-content');
+            profileContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5><i class="fas fa-user me-2"></i>Thông tin cá nhân</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Tên đăng nhập:</strong></td>
+                                <td>${currentUser.tai_khoan?.ten_dang_nhap || currentUser.ten_dang_nhap || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Họ và tên:</strong></td>
+                                <td>${currentUser.ten_khach_hang || currentUser.ten_quan_tri_vien || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>${currentUser.email || 'Chưa cập nhật'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Số điện thoại:</strong></td>
+                                <td>${currentUser.so_dien_thoai || 'Chưa cập nhật'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Địa chỉ:</strong></td>
+                                <td>${currentUser.dia_chi || 'Chưa cập nhật'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vai trò:</strong></td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        ${currentUser.tai_khoan?.vai_tro?.ten_vai_tro || 'Khách hàng'}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="bg-light p-4 rounded">
+                            <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                            <h6>${currentUser.ten_khach_hang || currentUser.ten_quan_tri_vien || 'User'}</h6>
+                            <small class="text-muted">Thành viên Food Ordering System</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+ 
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                // Clear authentication data
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("currentUser");
+                window.location.href = "login.html";
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toastClass = type === 'success' ? 'bg-success' : 
+                              type === 'error' ? 'bg-danger' : 
+                              type === 'warning' ? 'bg-warning' : 'bg-info';
+
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white ${toastClass} border-0 position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                          type === 'error' ? 'exclamation-triangle' : 
+                                          type === 'warning' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            new bootstrap.Toast(toast).show();
+            
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        // Update existing authentication-related event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle profile modal trigger
+            document.querySelector('.navbar-nav li:last-child a').addEventListener('click', function(e) {
+                if (currentUser && authToken) {
+                    e.preventDefault();
+                    showProfileModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
