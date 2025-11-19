@@ -7,7 +7,8 @@ use App\Http\Controllers\API\SanPhamController;
 use App\Http\Controllers\API\DanhMucController;
 use App\Http\Controllers\API\DonHangController;
 use App\Http\Controllers\API\KhachHangController;
-
+use App\Http\Controllers\API\Admin\CategoryAdminController;
+use App\Http\Controllers\API\Admin\TaiKhoanAdminController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -102,3 +103,17 @@ Route::get('test', function () {
         'version' => '1.0.0'
     ]);
 });
+
+// Admin Category API routes
+Route::prefix("admin")->group(function () {
+    Route::get("/categories", [CategoryAdminController::class, "index"]);
+    Route::post("/categories", [CategoryAdminController::class, "store"]);
+    Route::put("/categories/{id}", [CategoryAdminController::class, "update"]);
+    Route::delete("/categories/{id}", [CategoryAdminController::class, "destroy"]);
+});
+
+Route::prefix('admin')->group(function () {
+    Route::get('/tai-khoan', [TaiKhoanAdminController::class, 'index']);
+    Route::post('/tai-khoan', [TaiKhoanAdminController::class, 'store']);
+});
+

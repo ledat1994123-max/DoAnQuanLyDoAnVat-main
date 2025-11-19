@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
         body {
             background-color: #f8f9fa;
         }
+
         .sidebar {
             width: 260px;
             height: 100vh;
@@ -22,28 +24,34 @@
             top: 0;
             padding-top: 30px;
         }
+
         .sidebar h3 {
             text-align: center;
             margin-bottom: 30px;
             font-weight: bold;
         }
+
         .sidebar a {
             display: block;
             padding: 12px 20px;
             color: #ddd;
             text-decoration: none;
         }
+
         .sidebar a:hover {
             background: #495057;
             color: white;
         }
+
         .content {
             margin-left: 260px;
             padding: 25px;
         }
+
         .card {
             border-radius: 12px;
         }
+
         .logout-btn {
             bottom: 20px;
             left: 20px;
@@ -52,299 +60,483 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h3><i class="fas fa-user-shield me-2"></i>ADMIN</h3>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3><i class="fas fa-user-shield me-2"></i>ADMIN</h3>
 
-    <a href="#"><i class="fas fa-chart-line me-2"></i>Thống kê</a>
-    <a href="#"><i class="fas fa-box-open me-2"></i>Quản lý sản phẩm</a>
-    <a href="#"><i class="fas fa-folder me-2"></i>Quản lý danh mục</a>
-    <a href="#"><i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng</a>
-    <a href="#" onclick="openUserManagement()">
-    <i class="fas fa-users me-2"></i>Quản lý tài khoản</a>
+        <a href="#"><i class="fas fa-chart-line me-2"></i>Thống kê</a>
+        <a href="#"><i class="fas fa-box-open me-2"></i>Quản lý sản phẩm</a>
+        <a href="#" onclick="openCategoryManagement()">
+            <i class="fas fa-folder me-2"></i>Quản lý danh mục </a>
+        <a href="#"><i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng</a>
+        <a href="#" onclick="openUserManagement()">
+            <i class="fas fa-users me-2"></i>Quản lý tài khoản</a>
 
-    <!-- Logout -->
-    <button class="btn btn-danger logout-btn" onclick="logout()">
-        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
-    </button>
-</div>
-
-<!-- Main content -->
-<div class="content">
-    <h1 class="fw-bold">Admin Dashboard</h1>
-    <div id="user-management" style="display:none;">
-    <h2 class="fw-bold">Quản lý tài khoản</h2>
-    <div class="btn-group mb-3" role="group">
-        <button class="btn btn-outline-primary" id="btnStaff" onclick="loadUsersByRole(3)">Nhân viên</button>
-        <button class="btn btn-outline-success" id="btnCustomer" onclick="loadUsersByRole(2)">Khách hàng</button>
-    </div>
-    
-    <button class="btn btn-primary my-3" onclick="showAddUserModal()">
-        <i class="fas fa-user-plus me-2"></i>Thêm tài khoản
-    </button>
-
-    <table class="table table-bordered table-striped" id="userTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên đăng nhập</th>
-                <th>Họ tên</th>
-                <th>Email</th>
-                <th>Số ĐT</th>
-                <th>Vai trò</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-        </table>
+        <!-- Logout -->
+        <button class="btn btn-danger logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+        </button>
     </div>
 
-    <p class="text-muted">Xin chào quản trị viên, chào mừng trở lại hệ thống!</p>
+    <!-- Main content -->
+    <div class="content">
 
-    <div class="row mt-4">
-        <div class="col-md-4 mb-3">
-            <div class="card p-4 shadow">
-                <h4><i class="fas fa-box text-primary me-2"></i>Tổng sản phẩm</h4>
-                <h2 id="count-products" class="fw-bold">---</h2>
+        <!-- DASHBOARD (mặc định hiển thị) -->
+        <div id="dashboard-section">
+            <h1 class="fw-bold">Admin Dashboard</h1>
+
+            <p class="text-muted">Xin chào quản trị viên, chào mừng trở lại hệ thống!</p>
+
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4 shadow">
+                        <h4><i class="fas fa-box text-primary me-2"></i>Tổng sản phẩm</h4>
+                        <h2 id="count-products" class="fw-bold">---</h2>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4 shadow">
+                        <h4><i class="fas fa-shopping-cart text-success me-2"></i>Tổng đơn hàng</h4>
+                        <h2 id="count-orders" class="fw-bold">---</h2>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4 shadow">
+                        <h4><i class="fas fa-users text-warning me-2"></i>Tổng người dùng</h4>
+                        <h2 id="count-users" class="fw-bold">---</h2>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card p-4 shadow">
-                <h4><i class="fas fa-shopping-cart text-success me-2"></i>Tổng đơn hàng</h4>
-                <h2 id="count-orders" class="fw-bold">---</h2>
+
+
+        <!-- QUẢN LÝ TÀI KHOẢN -->
+        <div id="user-management" style="display:none;">
+            <h2 class="fw-bold">Quản lý tài khoản</h2>
+
+            <div class="btn-group mb-3" role="group">
+                <button class="btn btn-outline-primary" id="btnStaff" onclick="loadUsersByRole(3)">Nhân viên</button>
+                <button class="btn btn-outline-success" id="btnCustomer" onclick="loadUsersByRole(2)">Khách
+                    hàng</button>
             </div>
+
+            <button class="btn btn-primary my-3" onclick="showAddUserModal()">
+                <i class="fas fa-user-plus me-2"></i> Thêm tài khoản
+            </button>
+
+            <table class="table table-bordered table-striped" id="userTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số ĐT</th>
+                        <th>Vai trò</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card p-4 shadow">
-                <h4><i class="fas fa-users text-warning me-2"></i>Tổng người dùng</h4>
-                <h2 id="count-users" class="fw-bold">---</h2>
+
+
+        <!-- QUẢN LÝ DANH MỤC -->
+        <div id="category-management" style="display:none;">
+            <h2 class="fw-bold">Quản lý danh mục</h2>
+
+            <button class="btn btn-primary my-3" onclick="showAddCategoryModal()">
+                <i class="fas fa-plus"></i> Thêm danh mục
+            </button>
+
+            <table class="table table-bordered" id="categoryTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        function hideAllSections() {
+            document.getElementById("dashboard-section").style.display = "none";
+            document.getElementById("user-management").style.display = "none";
+            document.getElementById("category-management").style.display = "none";
+        }
+
+        function logout() {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("currentUser");
+            window.location.href = "login.html";
+        }
+
+        console.log("=== CURRENT USER FROM LOCAL STORAGE ===");
+        console.log(localStorage.getItem("currentUser"));
+
+        // CHẶN NGƯỜI DÙNG KHÔNG PHẢI ADMIN
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!user) {
+            window.location.href = "login.html";
+        }
+
+        // Nếu không phải ADMIN 
+        if (user.id_vai_tro != 1) {
+            window.location.href = "frontend.html";
+        }
+
+
+
+    </script>
+
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">Tài khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" id="user_id">
+
+                        <div class="mb-3">
+                            <label>Tên đăng nhập</label>
+                            <input type="text" id="username" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Mật khẩu</label>
+                            <input type="password" id="password" class="form-control">
+                            <small class="text-muted">Để trống nếu không đổi</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Họ tên</label>
+                            <input type="text" id="fullname" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" id="email" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Số điện thoại</label>
+                            <input type="number" id="phone" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Vai trò</label>
+                            <select id="role" class="form-control">
+                                <option value="1">Admin</option>
+                                <option value="2">Khách hàng</option>
+                                <option value="3">Nhân viên</option>
+                            </select>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveUser()">Lưu</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-<script>
-function logout() {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("currentUser");
-    window.location.href = "login.html";
-}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalTitle">Danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-console.log("=== CURRENT USER FROM LOCAL STORAGE ===");
-console.log(localStorage.getItem("currentUser"));
-
-// CHẶN NGƯỜI DÙNG KHÔNG PHẢI ADMIN
-const user = JSON.parse(localStorage.getItem("currentUser"));
-if (!user || (role !== "Admin" && role !== "Quản trị viên")) {
-    alert("Bạn không có quyền truy cập trang này!");
-    window.location.href = "login.html";
-}
-</script>
-
-<div class="modal fade" id="userModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="userModalTitle">Tài khoản</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="userForm">
-                    <input type="hidden" id="user_id">
+                <div class="modal-body">
+                    <input type="hidden" id="category_id">
 
                     <div class="mb-3">
-                        <label>Tên đăng nhập</label>
-                        <input type="text" id="username" class="form-control" required>
+                        <label>Tên danh mục</label>
+                        <input type="text" id="category_name" class="form-control">
                     </div>
 
                     <div class="mb-3">
-                        <label>Mật khẩu</label>
-                        <input type="password" id="password" class="form-control">
-                        <small class="text-muted">Để trống nếu không đổi</small>
+                        <label>Mô tả</label>
+                        <textarea id="category_desc" class="form-control"></textarea>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label>Họ tên</label>
-                        <input type="text" id="fullname" class="form-control" required>
-                    </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveCategory()">Lưu</button>
+                </div>
 
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" id="email" class="form-control">
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Số điện thoại</label>
-                        <input type="number" id="phone" class="form-control">
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Vai trò</label>
-                        <select id="role" class="form-control">
-                            <option value="1">Admin</option>
-                            <option value="2">Khách hàng</option>
-                            <option value="3">Nhân viên</option>
-                        </select>
-                    </div>
-
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-primary" onclick="saveUser()">Lưu</button>
             </div>
         </div>
     </div>
-</div>
-<script>
-
-const API_URL = "http://127.0.0.1:8001/api/admin/tai-khoan";
-const token = localStorage.getItem("authToken");
 
 
-// Mở giao diện quản lý tài khoản
-function openUserManagement() {
-    document.querySelector(".content > h1").style.display = "none"; 
-    document.querySelector(".row").style.display = "none";
-    document.querySelector("p.text-muted").style.display = "none";
+    <script>
 
-    document.getElementById("user-management").style.display = "block";
-    loadUsersByRole(3); //  mở tab nhân viên
-}
+        const API_URL = "http://127.0.0.1:8001/api/admin/khach-hang";
+        const token = localStorage.getItem("authToken");
 
-// Tải danh sách tài khoản từ API
-async function loadUsers(roleFilter = null) {
-    const res = await fetch(API_URL, {
-        headers: { Authorization: "Bearer " + token }
-    });
 
-    const data = await res.json();
-    let rows = "";
+        // Mở giao diện quản lý tài khoản
+        function openUserManagement() {
+            hideAllSections();
+            document.getElementById("user-management").style.display = "block";
+            loadUsersByRole(3);
+        }
 
-    let users = data.data;
+        function openCategoryManagement() {
+            hideAllSections();
+            document.getElementById("category-management").style.display = "block";
+            loadCategories();
+        }
 
-    // --- Lọc theo vai trò ---
-    if (roleFilter) {
-        users = users.filter(u => u.id_vai_tro == roleFilter);
-    }
+        function openDashboard() {
+            hideAllSections();
+            document.getElementById("dashboard-section").style.display = "block";
+        }
 
-    users.forEach(u => {
-        rows += `
+        function loadUsersByRole(roleId) {
+            loadUsers(roleId);
+
+            // Đổi màu nút được chọn
+            document.getElementById("btnStaff").classList.remove("active");
+            document.getElementById("btnCustomer").classList.remove("active");
+
+            if (roleId === 3) {
+                document.getElementById("btnStaff").classList.add("active");
+            } else {
+                document.getElementById("btnCustomer").classList.add("active");
+            }
+        }
+
+        // Mở modal thêm tài khoản
+        function showAddUserModal() {
+            document.getElementById("userForm").reset();
+            document.getElementById("user_id").value = "";
+            document.getElementById("userModalTitle").innerText = "Thêm tài khoản";
+
+            new bootstrap.Modal(document.getElementById("userModal")).show();
+        }
+
+        // Lưu tài khoản (Thêm hoặc cập nhật)
+        async function saveUser() {
+
+            const body = {
+                ten_dang_nhap: username.value,
+                mat_khau: password.value,
+                ten_khach_hang: fullname.value,
+                email: email.value,
+                so_dien_thoai: phone.value,
+                dia_chi: document.getElementById("address")?.value ?? '',
+                id_vai_tro: role.value
+            };
+
+            const res = await fetch("http://127.0.0.1:8001/api/admin/khach-hang", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify(body)
+            });
+
+            const json = await res.json();
+            alert(json.message);
+
+            loadUsers();
+            bootstrap.Modal.getInstance(document.getElementById("userModal")).hide();
+        }
+
+        // Tải danh sách tài khoản với bộ lọc vai trò
+        async function loadUsers(roleFilter = null) {
+            const res = await fetch("http://127.0.0.1:8001/api/admin/khach-hang", {
+                headers: { Authorization: "Bearer " + token }
+            });
+
+            const data = await res.json();
+            let rows = "";
+            let users = data.data;
+
+            if (roleFilter) {
+                users = users.filter(u => u.id_vai_tro == roleFilter);
+            }
+
+            users.forEach(u => {
+                rows += `
             <tr>
                 <td>${u.ma_tai_khoan}</td>
                 <td>${u.ten_dang_nhap}</td>
-                <td>${u.ten_khach_hang || '---'}</td>
-                <td>${u.email || '---'}</td>
-                <td>${u.so_dien_thoai || '---'}</td>
+                <td>${u.khach_hang?.ten_khach_hang ?? "---"}</td>
+                <td>${u.khach_hang?.email ?? "---"}</td>
+                <td>${u.khach_hang?.so_dien_thoai ?? "---"}</td>
                 <td>${u.vai_tro?.ten_vai_tro}</td>
                 <td>
-                    <button class="btn btn-sm btn-warning" onclick="editUser(${u.ma_tai_khoan})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.ma_tai_khoan})">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <button class="btn btn-warning btn-sm">Sửa</button>
+                    <button class="btn btn-danger btn-sm">Xóa</button>
                 </td>
             </tr>
         `;
-    });
+            });
 
-    document.querySelector("#userTable tbody").innerHTML = rows;
-}
+            document.querySelector("#userTable tbody").innerHTML = rows;
+        }
 
-function loadUsersByRole(roleId) {
-    loadUsers(roleId);
 
-    // Đổi màu nút được chọn
-    document.getElementById("btnStaff").classList.remove("active");
-    document.getElementById("btnCustomer").classList.remove("active");
+        // Lấy dữ liệu tài khoản để sửa
+        async function editUser(id) {
+            const res = await fetch(`${API_URL}/${id}`, {
+                headers: { Authorization: "Bearer " + token }
+            });
 
-    if (roleId === 3) {
-        document.getElementById("btnStaff").classList.add("active");
-    } else {
-        document.getElementById("btnCustomer").classList.add("active");
-    }
-}
+            const u = (await res.json()).data;
 
-// Mở modal thêm tài khoản
-function showAddUserModal() {
-    document.getElementById("userForm").reset();
-    document.getElementById("user_id").value = "";
-    document.getElementById("userModalTitle").innerText = "Thêm tài khoản";
+            user_id.value = u.ma_tai_khoan;
+            username.value = u.ten_dang_nhap;
+            fullname.value = u.ten_khach_hang;
+            email.value = u.email;
+            phone.value = u.so_dien_thoai;
+            role.value = u.id_vai_tro;
 
-    new bootstrap.Modal(document.getElementById("userModal")).show();
-}
+            document.getElementById("userModalTitle").innerText = "Cập nhật tài khoản";
 
-// Lưu tài khoản (Thêm hoặc cập nhật)
-async function saveUser() {
-    const id = document.getElementById("user_id").value;
+            new bootstrap.Modal(document.getElementById("userModal")).show();
+        }
 
-    const body = {
-        ten_dang_nhap: username.value,
-        mat_khau: password.value,
-        ten_khach_hang: fullname.value,
-        email: email.value,
-        so_dien_thoai: phone.value,
-        id_vai_tro: role.value
-    };
+        // Xóa tài khoản
+        async function deleteUser(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) return;
 
-    const url = id ? `${API_URL}/${id}` : API_URL;
-    const method = id ? "PUT" : "POST";
+            const res = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: "Bearer " + token }
+            });
 
-    const res = await fetch(url, {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify(body)
-    });
+            const data = await res.json();
+            alert(data.message);
 
-    const data = await res.json();
-    alert(data.message);
+            loadUsers();
+        }
 
-    loadUsers();
-    bootstrap.Modal.getInstance(document.getElementById("userModal")).hide();
-}
+        // QUẢN LÝ DANH MỤC
+        const CATEGORY_API = "http://127.0.0.1:8001/api/admin/categories";
 
-// Lấy dữ liệu tài khoản để sửa
-async function editUser(id) {
-    const res = await fetch(`${API_URL}/${id}`, {
-        headers: { Authorization: "Bearer " + token }
-    });
+        function openCategoryManagement() {
+            hideAllSections();
+            document.getElementById("category-management").style.display = "block";
+            loadCategories();
+        }
 
-    const u = (await res.json()).data;
+        // Load danh sách danh mục
+        async function loadCategories() {
+            const res = await fetch(CATEGORY_API);
+            const json = await res.json();
 
-    user_id.value = u.ma_tai_khoan;
-    username.value = u.ten_dang_nhap;
-    fullname.value = u.ten_khach_hang;
-    email.value = u.email;
-    phone.value = u.so_dien_thoai;
-    role.value = u.id_vai_tro;
+            let rows = "";
+            json.data.forEach(c => {
+                rows += `
+        <tr>
+            <td>${c.ma_danh_muc}</td>
+            <td>${c.ten_danh_muc}</td>
+            <td>${c.mota ?? ""}</td>
+            <td>
+                <button class="btn btn-warning btn-sm"
+                    onclick="editCategory(${c.ma_danh_muc}, '${c.ten_danh_muc}', \`${c.mota ?? ""}\`)">
+                    Sửa
+                </button>
 
-    document.getElementById("userModalTitle").innerText = "Cập nhật tài khoản";
+                <button class="btn btn-danger btn-sm"
+                    onclick="deleteCategory(${c.ma_danh_muc})">
+                    Xóa
+                </button>
+            </td>
+        </tr>`;
+            });
 
-    new bootstrap.Modal(document.getElementById("userModal")).show();
-}
+            document.querySelector("#categoryTable tbody").innerHTML = rows;
+        }
 
-// Xóa tài khoản
-async function deleteUser(id) {
-    if (!confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) return;
+        // Mở modal thêm mới
+        function showAddCategoryModal() {
+            category_id.value = "";
+            category_name.value = "";
+            category_desc.value = "";
 
-    const res = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: "Bearer " + token }
-    });
+            categoryModalTitle.innerText = "Thêm danh mục";
+            new bootstrap.Modal(document.getElementById("categoryModal")).show();
+        }
 
-    const data = await res.json();
-    alert(data.message);
+        // Lưu (Thêm hoặc Sửa)
+        async function saveCategory() {
+            const id = category_id.value;
 
-    loadUsers();
-}
-</script>
+            const body = {
+                ten_danh_muc: category_name.value,
+                mota: category_desc.value
+            };
+
+            const method = id ? "PUT" : "POST";
+            const url = id ? `${CATEGORY_API}/${id}` : CATEGORY_API;
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const json = await res.json();
+            alert(json.message);
+
+            loadCategories();
+            bootstrap.Modal.getInstance(document.getElementById("categoryModal")).hide();
+        }
+
+        // Mở modal sửa
+        function editCategory(id, name, mota) {
+            category_id.value = id;
+            category_name.value = name;
+            category_desc.value = mota;
+
+            categoryModalTitle.innerText = "Sửa danh mục";
+            new bootstrap.Modal(document.getElementById("categoryModal")).show();
+        }
+
+        // Xóa danh mục
+        async function deleteCategory(id) {
+            if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+            const res = await fetch(`${CATEGORY_API}/${id}`, {
+                method: "DELETE"
+            });
+
+            const json = await res.json();
+            alert(json.message);
+
+            loadCategories();
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

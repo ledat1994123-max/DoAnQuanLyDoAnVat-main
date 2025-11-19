@@ -61,7 +61,6 @@ class AuthController extends Controller
                     'khach_hang' => $khachHang
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -76,52 +75,37 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'ten_dang_nhap' => 'required|string',
-            'mat_khau' => 'required|string'
+        $request->validate([
+            'ten_dang_nhap' => 'required',
+            'mat_khau' => 'required'
         ]);
 
-        if ($validator->fails()) {
+        // Tìm tài khoản theo username
+        $user = TaiKhoan::where('ten_dang_nhap', $request->ten_dang_nhap)->first();
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $taiKhoan = TaiKhoan::where('ten_dang_nhap', $request->ten_dang_nhap)->first();
-
-        // So sánh password trực tiếp không dùng hash
-        if (!$taiKhoan || $taiKhoan->mat_khau !== $request->mat_khau) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tên đăng nhập hoặc mật khẩu không đúng'
+                'message' => 'Sai tên đăng nhập'
             ], 401);
         }
 
-        // Tạo token đơn giản
-        $token = base64_encode($taiKhoan->id_tai_khoan . ':' . time());
-
-        // Lấy thông tin chi tiết theo vai trò
-        $userInfo = null;
-        if ($taiKhoan->id_vai_tro == 2) { // Khách hàng
-            $userInfo = $taiKhoan->khachHang;
-        } elseif ($taiKhoan->id_vai_tro == 1 || $taiKhoan->id_vai_tro == 3) { // Admin hoặc nhân viên
-            $userInfo = $taiKhoan->quanTriVien;
+        // So sánh mật khẩu PLAIN TEXT (không băm)
+        if ($user->mat_khau !== $request->mat_khau) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sai mật khẩu'
+            ], 401);
         }
-        
-        // Thêm roleId và roleName vào thông tin user
-        $userInfo->id_vai_tro = $taiKhoan->id_vai_tro;
-        $userInfo->ten_vai_tro = $taiKhoan->vaiTro->ten_vai_tro;
+
+        // Tạo token  
+        $token = $user->createToken("auth-token")->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Đăng nhập thành công',
-            'data' => [
-                'token' => $token,
-                'tai_khoan' => $taiKhoan->load('vaiTro'),
-                'thong_tin' => $userInfo
-            ]
+            'token' => $token,
+            'user' => $user
         ]);
     }
 
@@ -132,7 +116,7 @@ class AuthController extends Controller
     {
         // Giả sử token được gửi trong header Authorization
         $token = $request->bearerToken();
-        
+
         if (!$token) {
             return response()->json([
                 'success' => false,
@@ -146,7 +130,7 @@ class AuthController extends Controller
             $userId = $parts[0];
 
             $taiKhoan = TaiKhoan::find($userId);
-            
+
             if (!$taiKhoan) {
                 return response()->json([
                     'success' => false,
@@ -168,7 +152,6 @@ class AuthController extends Controller
                     'thong_tin' => $userInfo
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
