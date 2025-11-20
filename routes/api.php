@@ -9,6 +9,7 @@ use App\Http\Controllers\API\DonHangController;
 use App\Http\Controllers\API\KhachHangController;
 use App\Http\Controllers\API\Admin\CategoryAdminController;
 use App\Http\Controllers\API\Admin\TaiKhoanAdminController;
+use App\Http\Controllers\API\Admin\SanPhamAdminController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -108,12 +109,22 @@ Route::get('test', function () {
 Route::prefix("admin")->group(function () {
     Route::get("/categories", [CategoryAdminController::class, "index"]);
     Route::post("/categories", [CategoryAdminController::class, "store"]);
-    Route::put("/categories/{id}", [CategoryAdminController::class, "update"]);
-    Route::delete("/categories/{id}", [CategoryAdminController::class, "destroy"]);
-});
-
-Route::prefix('admin')->group(function () {
+    
+    // Quản lý tài khoản
     Route::get('/tai-khoan', [TaiKhoanAdminController::class, 'index']);
     Route::post('/tai-khoan', [TaiKhoanAdminController::class, 'store']);
+    Route::put('/tai-khoan/{id}', [TaiKhoanAdminController::class, 'update']);
+    Route::delete('/tai-khoan/{id}', [TaiKhoanAdminController::class, 'destroy']);
+    
+    // Quản lý sản phẩm (Admin)
+    Route::get('/san-pham', [SanPhamAdminController::class, 'index']);
+    Route::post('/san-pham', [SanPhamAdminController::class, 'store']);
+    Route::get('/san-pham/{id}', [SanPhamAdminController::class, 'show']);
+    Route::put('/san-pham/{id}', [SanPhamAdminController::class, 'update']);
+    Route::delete('/san-pham/{id}', [SanPhamAdminController::class, 'destroy']);
+    
+    // Thống kê dashboard
+    Route::get('/thong-ke', [SanPhamAdminController::class, 'getStatistics']);
 });
+
 

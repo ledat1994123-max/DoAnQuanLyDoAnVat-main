@@ -67,8 +67,8 @@
     <div class="sidebar">
         <h3><i class="fas fa-user-shield me-2"></i>ADMIN</h3>
 
-        <a href="#"><i class="fas fa-chart-line me-2"></i>Thống kê</a>
-        <a href="#"><i class="fas fa-box-open me-2"></i>Quản lý sản phẩm</a>
+        <a href="#" onclick="openDashboard()"><i class="fas fa-chart-line me-2"></i>Thống kê</a>
+        <a href="#" onclick="openProductManagement()"><i class="fas fa-box-open me-2"></i>Quản lý sản phẩm</a>
         <a href="#" onclick="openCategoryManagement()">
             <i class="fas fa-folder me-2"></i>Quản lý danh mục </a>
         <a href="#"><i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng</a>
@@ -108,6 +108,52 @@
                         <h4><i class="fas fa-users text-warning me-2"></i>Tổng người dùng</h4>
                         <h2 id="count-users" class="fw-bold">---</h2>
                     </div>
+                </div>
+            </div>
+
+            <!-- Doanh thu -->
+            <div class="row mt-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card p-4 shadow">
+                        <h4><i class="fas fa-dollar-sign text-success me-2"></i>Doanh thu hôm nay</h4>
+                        <h2 id="today-revenue" class="fw-bold">---</h2>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card p-4 shadow">
+                        <h4><i class="fas fa-calendar text-info me-2"></i>Doanh thu tháng này</h4>
+                        <h2 id="month-revenue" class="fw-bold">---</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sản phẩm bán chạy -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h4 class="fw-bold">Top 5 Sản phẩm bán chạy</h4>
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsTable"></tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="fw-bold">Sản phẩm sắp hết hàng</h4>
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <th>Tồn kho</th>
+                                <th>Đơn giá</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowStockTable"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -165,6 +211,29 @@
             </table>
         </div>
 
+        <!-- QUẢN LÝ SẢN PHẨM -->
+        <div id="product-management" style="display:none;">
+            <h2 class="fw-bold">Quản lý sản phẩm</h2>
+
+            <button class="btn btn-primary my-3" onclick="showAddProductModal()">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </button>
+
+            <table class="table table-bordered table-striped" id="productTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Đơn giá</th>
+                        <th>Tồn kho</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
     </div>
 
 
@@ -175,6 +244,7 @@
             document.getElementById("dashboard-section").style.display = "none";
             document.getElementById("user-management").style.display = "none";
             document.getElementById("category-management").style.display = "none";
+            document.getElementById("product-management").style.display = "none";
         }
 
         function logout() {
@@ -258,6 +328,70 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalTitle">Sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="product_id">
+
+                        <div class="mb-3">
+                            <label>Tên sản phẩm</label>
+                            <input type="text" id="product_name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Mô tả</label>
+                            <textarea id="product_desc" class="form-control"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Quy cách</label>
+                            <input type="text" id="product_spec" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Đơn vị</label>
+                            <input type="text" id="product_unit" class="form-control">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Đơn giá</label>
+                                <input type="number" id="product_price" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Tồn kho</label>
+                                <input type="number" id="product_stock" class="form-control" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Hình ảnh</label>
+                            <input type="file" id="product_image" class="form-control" accept="image/*">
+                            <small class="text-muted">Chọn file hình ảnh từ máy của bạn</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Danh mục</label>
+                            <select id="product_category" class="form-control" required>
+                                <option value="">-- Chọn danh mục --</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveProduct()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="categoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -293,7 +427,11 @@
 
     <script>
 
-        const API_URL = "http://127.0.0.1:8001/api/admin/khach-hang";
+        // dùng endpoint quản lý tài khoản (admin)
+        const API_URL = "http://127.0.0.1:8001/api/admin/tai-khoan";
+        const PRODUCT_API = "http://127.0.0.1:8001/api/admin/san-pham";
+        const CATEGORY_API = "http://127.0.0.1:8001/api/admin/categories";
+        const STATS_API = "http://127.0.0.1:8001/api/admin/thong-ke";
         const token = localStorage.getItem("authToken");
 
 
@@ -302,6 +440,13 @@
             hideAllSections();
             document.getElementById("user-management").style.display = "block";
             loadUsersByRole(3);
+        }
+
+        function openProductManagement() {
+            hideAllSections();
+            document.getElementById("product-management").style.display = "block";
+            loadCategories();
+            loadProducts();
         }
 
         function openCategoryManagement() {
@@ -313,6 +458,58 @@
         function openDashboard() {
             hideAllSections();
             document.getElementById("dashboard-section").style.display = "block";
+            loadStatistics();
+        }
+
+        // Load thống kê dashboard
+        async function loadStatistics() {
+            try {
+                const res = await fetch(STATS_API, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    const stats = data.data;
+                    document.getElementById("count-products").innerText = stats.total_products;
+                    document.getElementById("count-orders").innerText = stats.total_orders;
+                    document.getElementById("count-users").innerText = stats.total_users;
+                    document.getElementById("today-revenue").innerText = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(stats.today_revenue || 0);
+                    document.getElementById("month-revenue").innerText = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(stats.month_revenue || 0);
+
+                    // Top products
+                    let topRows = "";
+                    stats.top_products.forEach(p => {
+                        topRows += `
+                    <tr>
+                        <td>${p.san_pham?.ten_san_pham ?? '---'}</td>
+                        <td>${p.total_quantity}</td>
+                        <td>${new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(p.total_revenue)}</td>
+                    </tr>`;
+                    });
+                    document.getElementById("topProductsTable").innerHTML = topRows;
+
+                    // Low stock products
+                    let lowRows = "";
+                    stats.low_stock_products.forEach(p => {
+                        lowRows += `
+                    <tr>
+                        <td>${p.ten_san_pham}</td>
+                        <td><span class="badge bg-warning">${p.ton_kho}</span></td>
+                        <td>${new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(p.don_gia)}</td>
+                    </tr>`;
+                    });
+                    document.getElementById("lowStockTable").innerHTML = lowRows;
+                }
+            } catch (e) {
+                console.error("Error loading statistics:", e);
+            }
         }
 
         function loadUsersByRole(roleId) {
@@ -351,7 +548,8 @@
                 id_vai_tro: role.value
             };
 
-            const res = await fetch("http://127.0.0.1:8001/api/admin/khach-hang", {
+            // POST tới endpoint tai-khoan để admin tạo tài khoản (controller sẽ tạo KhachHang nếu id_vai_tro==2)
+            const res = await fetch(API_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -369,13 +567,14 @@
 
         // Tải danh sách tài khoản với bộ lọc vai trò
         async function loadUsers(roleFilter = null) {
-            const res = await fetch("http://127.0.0.1:8001/api/admin/khach-hang", {
+            const res = await fetch(API_URL, {
                 headers: { Authorization: "Bearer " + token }
             });
 
             const data = await res.json();
             let rows = "";
-            let users = data.data;
+            // Controller trả về 'data' là mảng TaiKhoan
+            let users = data.data || [];
 
             if (roleFilter) {
                 users = users.filter(u => u.id_vai_tro == roleFilter);
@@ -384,15 +583,15 @@
             users.forEach(u => {
                 rows += `
             <tr>
-                <td>${u.ma_tai_khoan}</td>
+                <td>${u.id_tai_khoan}</td>
                 <td>${u.ten_dang_nhap}</td>
                 <td>${u.khach_hang?.ten_khach_hang ?? "---"}</td>
                 <td>${u.khach_hang?.email ?? "---"}</td>
                 <td>${u.khach_hang?.so_dien_thoai ?? "---"}</td>
-                <td>${u.vai_tro?.ten_vai_tro}</td>
+                <td>${u.vai_tro?.ten_vai_tro ?? "---"}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm">Sửa</button>
-                    <button class="btn btn-danger btn-sm">Xóa</button>
+                    <button class="btn btn-warning btn-sm" onclick="editUser(${u.id_tai_khoan})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id_tai_khoan})">Xóa</button>
                 </td>
             </tr>
         `;
@@ -410,11 +609,11 @@
 
             const u = (await res.json()).data;
 
-            user_id.value = u.ma_tai_khoan;
+            user_id.value = u.id_tai_khoan;
             username.value = u.ten_dang_nhap;
-            fullname.value = u.ten_khach_hang;
-            email.value = u.email;
-            phone.value = u.so_dien_thoai;
+            fullname.value = u.khach_hang?.ten_khach_hang ?? '';
+            email.value = u.khach_hang?.email ?? '';
+            phone.value = u.khach_hang?.so_dien_thoai ?? '';
             role.value = u.id_vai_tro;
 
             document.getElementById("userModalTitle").innerText = "Cập nhật tài khoản";
@@ -435,15 +634,6 @@
             alert(data.message);
 
             loadUsers();
-        }
-
-        // QUẢN LÝ DANH MỤC
-        const CATEGORY_API = "http://127.0.0.1:8001/api/admin/categories";
-
-        function openCategoryManagement() {
-            hideAllSections();
-            document.getElementById("category-management").style.display = "block";
-            loadCategories();
         }
 
         // Load danh sách danh mục
@@ -532,6 +722,195 @@
             alert(json.message);
 
             loadCategories();
+        }
+
+        // ===== QUẢN LÝ SẢN PHẨM =====
+        
+        async function loadProducts() {
+            try {
+                const res = await fetch(PRODUCT_API, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                const data = await res.json();
+                let rows = "";
+                let products = data.data || [];
+
+                products.forEach(p => {
+                    rows += `
+                <tr>
+                    <td>${p.ma_san_pham}</td>
+                    <td>${p.ten_san_pham}</td>
+                    <td>${p.danh_muc?.ten_danh_muc ?? '---'}</td>
+                    <td>${new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(p.don_gia)}</td>
+                    <td><span class="badge ${p.ton_kho < 10 ? 'bg-warning' : 'bg-success'}">${p.ton_kho}</span></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editProduct(${p.ma_san_pham})">Sửa</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.ma_san_pham})">Xóa</button>
+                    </td>
+                </tr>`;
+                });
+
+                document.querySelector("#productTable tbody").innerHTML = rows;
+            } catch (e) {
+                console.error("Error loading products:", e);
+            }
+        }
+
+        // Mở modal thêm sản phẩm
+        async function showAddProductModal() {
+            // Load categories for select
+            try {
+                const res = await fetch(CATEGORY_API);
+                const data = await res.json();
+                let options = '<option value="">-- Chọn danh mục --</option>';
+                data.data?.forEach(c => {
+                    options += `<option value="${c.ma_danh_muc}">${c.ten_danh_muc}</option>`;
+                });
+                document.getElementById("product_category").innerHTML = options;
+            } catch (e) {
+                console.error("Error loading categories:", e);
+            }
+
+            document.getElementById("productForm").reset();
+            document.getElementById("product_id").value = "";
+            document.getElementById("productModalTitle").innerText = "Thêm sản phẩm";
+            new bootstrap.Modal(document.getElementById("productModal")).show();
+        }
+
+        // Lưu sản phẩm
+        async function saveProduct() {
+            const productId = document.getElementById("product_id").value;
+            const imageFile = document.getElementById("product_image").files[0];
+            
+            // Kiểm tra dữ liệu required
+            if (!document.getElementById("product_name").value.trim()) {
+                alert("Vui lòng nhập tên sản phẩm");
+                return;
+            }
+            if (!document.getElementById("product_price").value) {
+                alert("Vui lòng nhập đơn giá");
+                return;
+            }
+            if (!document.getElementById("product_stock").value) {
+                alert("Vui lòng nhập tồn kho");
+                return;
+            }
+            if (!document.getElementById("product_category").value) {
+                alert("Vui lòng chọn danh mục");
+                return;
+            }
+            
+            // Tạo FormData để gửi file
+            const formData = new FormData();
+            formData.append('ten_san_pham', document.getElementById("product_name").value.trim());
+            formData.append('mo_ta', document.getElementById("product_desc").value.trim() || '');
+            formData.append('quy_cach', document.getElementById("product_spec").value.trim() || '');
+            formData.append('don_vi', document.getElementById("product_unit").value.trim() || '');
+            formData.append('don_gia', parseFloat(document.getElementById("product_price").value));
+            formData.append('ton_kho', parseInt(document.getElementById("product_stock").value));
+            formData.append('ma_danh_muc', parseInt(document.getElementById("product_category").value));
+            
+            // Nếu là update, thêm _method=PUT cho Laravel method spoofing
+            if (productId) {
+                formData.append('_method', 'PUT');
+            }
+            
+            // Thêm file nếu có
+            if (imageFile) {
+                formData.append('hinh_anh', imageFile);
+            }
+
+            const method = "POST"; // Luôn dùng POST, Laravel sẽ xử lý _method=PUT
+            const url = productId ? `${PRODUCT_API}/${productId}` : PRODUCT_API;
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+                
+                if (!data.success) {
+                    if (data.errors) {
+                        let errorMsg = "Lỗi:\n";
+                        for (let field in data.errors) {
+                            errorMsg += `${field}: ${data.errors[field].join(", ")}\n`;
+                        }
+                        alert(errorMsg);
+                    } else {
+                        alert(data.message || "Lỗi khi lưu sản phẩm");
+                    }
+                    return;
+                }
+                
+                alert(data.message);
+                loadProducts();
+                bootstrap.Modal.getInstance(document.getElementById("productModal")).hide();
+            } catch (e) {
+                console.error("Error saving product:", e);
+                alert("Lỗi khi lưu sản phẩm: " + e.message);
+            }
+        }
+
+        // Sửa sản phẩm
+        async function editProduct(id) {
+            try {
+                const res = await fetch(`${PRODUCT_API}/${id}`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                const data = await res.json();
+                const p = data.data;
+
+                // Load categories
+                const catRes = await fetch(CATEGORY_API);
+                const catData = await catRes.json();
+                let options = '<option value="">-- Chọn danh mục --</option>';
+                catData.data?.forEach(c => {
+                    options += `<option value="${c.ma_danh_muc}" ${c.ma_danh_muc === p.ma_danh_muc ? 'selected' : ''}>${c.ten_danh_muc}</option>`;
+                });
+                document.getElementById("product_category").innerHTML = options;
+
+                document.getElementById("product_id").value = p.ma_san_pham;
+                document.getElementById("product_name").value = p.ten_san_pham;
+                document.getElementById("product_desc").value = p.mo_ta || '';
+                document.getElementById("product_spec").value = p.quy_cach || '';
+                document.getElementById("product_unit").value = p.don_vi || '';
+                document.getElementById("product_price").value = p.don_gia;
+                document.getElementById("product_stock").value = p.ton_kho;
+                // Không set file input (bỏ trống để chọn file mới nếu muốn)
+                document.getElementById("product_image").value = '';
+
+                document.getElementById("productModalTitle").innerText = "Cập nhật sản phẩm";
+                new bootstrap.Modal(document.getElementById("productModal")).show();
+            } catch (e) {
+                console.error("Error loading product:", e);
+                alert("Lỗi khi tải sản phẩm");
+            }
+        }
+
+        // Xóa sản phẩm
+        async function deleteProduct(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
+
+            try {
+                const res = await fetch(`${PRODUCT_API}/${id}`, {
+                    method: "DELETE",
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                const data = await res.json();
+                alert(data.message);
+                loadProducts();
+            } catch (e) {
+                console.error("Error deleting product:", e);
+                alert("Lỗi khi xóa sản phẩm");
+            }
         }
 
     </script>

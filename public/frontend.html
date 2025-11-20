@@ -483,7 +483,7 @@
                     <div class="col-md-6 col-lg-3 mb-4">
                         <div class="card product-card">
                             <div class="position-relative">
-                                <img src="${product.url_hinh_anh || '/images/no-image.jpg'}" 
+                                <img src="${product.url_hinh_anh || '/images/no-image.svg'}" 
                                      class="card-img-top" alt="${product.ten_san_pham}"
                                      style="height: 200px; object-fit: cover;">
                                 ${hasDiscount ? `<span class="badge bg-danger position-absolute top-0 start-0 m-2">Giảm giá</span>` : ''}
@@ -559,7 +559,7 @@
                     document.getElementById('product-modal-content').innerHTML = `
                         <div class="row">
                             <div class="col-md-6">
-                                <img src="${product.url_hinh_anh || '/images/no-image.jpg'}" 
+                                <img src="${product.url_hinh_anh || '/images/no-image.svg'}" 
                                      class="img-fluid rounded" alt="${product.ten_san_pham}">
                             </div>
                             <div class="col-md-6">
@@ -682,7 +682,7 @@
 
                     cartHtml += `
                         <div class="d-flex align-items-center mb-3 p-3 border rounded">
-                            <img src="${item.url_hinh_anh || '/images/no-image.jpg'}" 
+                            <img src="${item.url_hinh_anh || '/images/no-image.svg'}" 
                                  alt="${item.ten_san_pham}" style="width: 60px; height: 60px; object-fit: cover;"
                                  class="rounded me-3">
                             <div class="flex-grow-1">
