@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,7 @@
             --dark-color: #2c3e50;
             --light-color: #ecf0f1;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
@@ -21,61 +22,61 @@
 
         .navbar {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .hero-section {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 80px 0;
             text-align: center;
         }
-        
+
         .category-card {
             transition: all 0.3s ease;
             border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         .category-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        
+
         .product-card {
             transition: all 0.3s ease;
             border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             height: 100%;
         }
-        
+
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        
+
         .price {
             color: var(--primary-color);
             font-weight: bold;
             font-size: 1.2em;
         }
-        
+
         .btn-primary {
             background: var(--primary-color);
             border-color: var(--primary-color);
         }
-        
+
         .btn-primary:hover {
             background: var(--secondary-color);
             border-color: var(--secondary-color);
         }
-        
+
         .loading {
             display: none;
             text-align: center;
             padding: 50px;
         }
-        
+
         .cart-count {
             background: #dc3545;
             color: white;
@@ -88,12 +89,13 @@
         }
     </style>
 </head>
+
 <body>
     <script>
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-        window.location.href = "login.html";
-    }
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            window.location.href = "login.html";
+        }
     </script>
 
     <!-- Navigation -->
@@ -140,9 +142,27 @@
             <h1 class="display-4 fw-bold mb-4">Chào mừng đến Food Ordering System</h1>
             <p class="lead mb-4">Khám phá hàng trăm món ăn ngon với công nghệ API hiện đại</p>
             <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control form-control-lg" placeholder="Tìm kiếm món ăn..." id="search-input">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2 mb-3">
+                        <!-- Input tìm kiếm -->
+                        <input type="text" class="form-control form-control-lg" placeholder="Tìm kiếm món ăn..."
+                            id="search-input">
+
+                        <!-- Select lọc danh mục -->
+                        <select class="form-select form-select-lg" id="category-filter">
+                            <option value="">Tất cả danh mục</option>
+                            <option value="1">Bánh kẹo</option>
+                            <option value="2">Snack mặn</option>
+                            <option value="3">Nước uống</option>
+                            <option value="4">Mì tôm & mì ăn liền</option>
+                            <option value="5">Trái cây sấy khô</option>
+                            <option value="6">Kem & đông lạnh</option>
+                        </select>
+
+                        <div id="product-list"></div>
+
+
+                        <!-- Nút tìm kiếm -->
                         <button class="btn btn-light btn-lg" type="button" onclick="searchProducts()">
                             <i class="fas fa-search"></i>
                         </button>
@@ -151,6 +171,7 @@
             </div>
         </div>
     </section>
+
 
     <!-- Loading -->
     <div class="loading" id="loading">
@@ -368,13 +389,13 @@
         let authToken = localStorage.getItem('authToken') || null;
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadCategories();
             loadFeaturedProducts();
             updateCartCount();
-            
+
             // Setup cart modal
-            document.getElementById('cart-link').addEventListener('click', function(e) {
+            document.getElementById('cart-link').addEventListener('click', function (e) {
                 e.preventDefault();
                 showCartModal();
             });
@@ -395,7 +416,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/danh-muc`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     allCategories = data.data;
                     renderCategories(data.data);
@@ -404,7 +425,7 @@
                 }
             } catch (error) {
                 console.error('Error loading categories:', error);
-                document.getElementById('categories-container').innerHTML = 
+                document.getElementById('categories-container').innerHTML =
                     `<div class="col-12 text-center">
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -448,7 +469,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/san-pham/noi-bat`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     allProducts = data.data;
                     renderProducts(data.data);
@@ -457,7 +478,7 @@
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
-                document.getElementById('products-container').innerHTML = 
+                document.getElementById('products-container').innerHTML =
                     `<div class="col-12 text-center">
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -519,6 +540,67 @@
                 container.innerHTML += productHtml;
             });
         }
+        // Tìm kiếm sản phẩm theo tên
+        async function searchProducts() {
+            const keyword = document.getElementById("search-input").value.trim();
+
+            if (keyword === "") {
+                renderProducts(allProducts); // nếu rỗng thì hiển thị lại sản phẩm nổi bật
+                return;
+            }
+
+            try {
+                showLoading(true);
+
+                // GỌI API TÌM KIẾM SẢN PHẨM
+                const response = await fetch(`${API_BASE_URL}/public/san-pham/search?keyword=${encodeURIComponent(keyword)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const products = data.data;
+
+                    if (products.length === 0) {
+                        document.getElementById('products-container').innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-warning mt-4">
+                            <i class="fas fa-search-minus me-2"></i>
+                            Không tìm thấy sản phẩm nào phù hợp với từ khóa: <strong>${keyword}</strong>
+                        </div>
+                    </div>`;
+                        return;
+                    }
+
+                    // Nếu có kết quả → render
+                    renderProducts(products);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                document.getElementById('products-container').innerHTML = `
+            <div class="col-12 text-center">
+                <div class="alert alert-danger mt-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Lỗi khi tìm kiếm sản phẩm. Vui lòng thử lại.
+                </div>
+            </div>`;
+            } finally {
+                showLoading(false);
+            }
+        }
+        // Lọc sản phẩm theo danh mục
+        function filterProductsByCategory(categoryId) {
+            if (!categoryId) {
+                renderProducts(allProducts);
+                return;
+            }
+
+            const filtered = allProducts.filter(p => p.danh_muc?.ma_danh_muc == categoryId);
+            renderProducts(filtered);
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
 
         // Load products by category
         async function loadCategoryProducts(categoryId) {
@@ -526,7 +608,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/danh-muc/${categoryId}/san-pham`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     renderProducts(data.data.san_pham.data);
                     // Scroll to products section
@@ -548,7 +630,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/san-pham/${productId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const product = data.data;
                     const hasDiscount = product.khuyen_mai_san_pham && product.khuyen_mai_san_pham.length > 0;
@@ -606,7 +688,7 @@
         function addToCart(productId, quantity = 1) {
             quantity = parseInt(quantity);
             const product = allProducts.find(p => p.ma_san_pham == productId);
-            
+
             if (!product) {
                 alert('Không tìm thấy sản phẩm');
                 return;
@@ -634,7 +716,7 @@
 
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
-            
+
             // Show success message
             const toast = document.createElement('div');
             toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
@@ -649,7 +731,7 @@
             `;
             document.body.appendChild(toast);
             new bootstrap.Toast(toast).show();
-            
+
             setTimeout(() => {
                 document.body.removeChild(toast);
             }, 3000);
@@ -742,7 +824,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/san-pham?search=${encodeURIComponent(searchTerm)}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     renderProducts(data.data.data);
                     document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
@@ -763,7 +845,7 @@
                 showLoading(true);
                 const response = await fetch(`${API_BASE_URL}/public/san-pham?per_page=20`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     allProducts = data.data.data;
                     renderProducts(data.data.data);
@@ -787,7 +869,7 @@
         }
 
         // Handle Enter key in search
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchProducts();
             }
@@ -797,13 +879,13 @@
         function updateAuthUI() {
             const authLink = document.getElementById('auth-link');
             const authText = document.getElementById('auth-text');
-            
+
             if (currentUser && authToken) {
                 // User is logged in - hiển thị tên user
                 authText.textContent = currentUser.ten_khach_hang || currentUser.ten_dang_nhap;
                 authLink.removeAttribute('data-bs-target');
                 authLink.removeAttribute('data-bs-toggle');
-                authLink.onclick = function(e) {
+                authLink.onclick = function (e) {
                     e.preventDefault();
                     showProfileModal();
                 };
@@ -820,7 +902,7 @@
         function setupAuthForms() {
             // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
+
             // Register form
             document.getElementById('registerForm').addEventListener('submit', handleRegister);
         }
@@ -828,10 +910,10 @@
         // Handle login
         async function handleLogin(e) {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
-            
+
             if (!username || !password) {
                 showToast('Vui lòng nhập đầy đủ thông tin', 'error');
                 return;
@@ -839,7 +921,7 @@
 
             try {
                 showLoading(true);
-                
+
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -852,27 +934,27 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Save authentication data
                     authToken = data.data.token;
-                    currentUser = data.data.thong_tin || { 
+                    currentUser = data.data.thong_tin || {
                         ten_dang_nhap: data.data.tai_khoan.ten_dang_nhap,
                         ten_khach_hang: data.data.tai_khoan.ten_dang_nhap // Fallback tên hiển thị
                     };
-                    
+
                     localStorage.setItem('authToken', authToken);
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
+
                     // Update UI
                     updateAuthUI();
-                    
+
                     // Close modal
                     bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-                    
+
                     // Show success message
                     showToast(`Chào mừng ${currentUser.ten_khach_hang || currentUser.ten_dang_nhap}!`, 'success');
-                    
+
                     // Clear form
                     document.getElementById('loginForm').reset();
                 } else {
@@ -889,7 +971,7 @@
         // Handle register
         async function handleRegister(e) {
             e.preventDefault();
-            
+
             const formData = {
                 ten_dang_nhap: document.getElementById('reg_username').value.trim(),
                 mat_khau: document.getElementById('reg_password').value.trim(),
@@ -898,13 +980,13 @@
                 email: document.getElementById('reg_email').value.trim(),
                 dia_chi: document.getElementById('reg_address').value.trim()
             };
-            
+
             // Basic validation
             if (!formData.ten_dang_nhap || !formData.mat_khau || !formData.ten_khach_hang) {
                 showToast('Vui lòng nhập đầy đủ thông tin bắt buộc', 'error');
                 return;
             }
-            
+
             if (formData.mat_khau.length < 6) {
                 showToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
                 return;
@@ -912,7 +994,7 @@
 
             try {
                 showLoading(true);
-                
+
                 const response = await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers: {
@@ -922,17 +1004,17 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Close register modal
                     bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
-                    
+
                     // Show success message
                     showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-                    
+
                     // Clear form
                     document.getElementById('registerForm').reset();
-                    
+
                     // Show login modal
                     setTimeout(() => {
                         new bootstrap.Modal(document.getElementById('loginModal')).show();
@@ -1017,7 +1099,7 @@
                     </div>
                 </div>
             `;
- 
+
             new bootstrap.Modal(document.getElementById('profileModal')).show();
         }
 
@@ -1033,9 +1115,9 @@
 
         // Show toast notification
         function showToast(message, type = 'info') {
-            const toastClass = type === 'success' ? 'bg-success' : 
-                              type === 'error' ? 'bg-danger' : 
-                              type === 'warning' ? 'bg-warning' : 'bg-info';
+            const toastClass = type === 'success' ? 'bg-success' :
+                type === 'error' ? 'bg-danger' :
+                    type === 'warning' ? 'bg-warning' : 'bg-info';
 
             const toast = document.createElement('div');
             toast.className = `toast align-items-center text-white ${toastClass} border-0 position-fixed top-0 end-0 m-3`;
@@ -1043,9 +1125,9 @@
             toast.innerHTML = `
                 <div class="d-flex">
                     <div class="toast-body">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : 
-                                          type === 'error' ? 'exclamation-triangle' : 
-                                          type === 'warning' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                        <i class="fas fa-${type === 'success' ? 'check-circle' :
+                    type === 'error' ? 'exclamation-triangle' :
+                        type === 'warning' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
                         ${message}
                     </div>
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -1053,7 +1135,7 @@
             `;
             document.body.appendChild(toast);
             new bootstrap.Toast(toast).show();
-            
+
             setTimeout(() => {
                 if (document.body.contains(toast)) {
                     document.body.removeChild(toast);
@@ -1062,15 +1144,42 @@
         }
 
         // Update existing authentication-related event listeners
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Handle profile modal trigger
-            document.querySelector('.navbar-nav li:last-child a').addEventListener('click', function(e) {
+            document.querySelector('.navbar-nav li:last-child a').addEventListener('click', function (e) {
                 if (currentUser && authToken) {
                     e.preventDefault();
                     showProfileModal();
                 }
             });
         });
+        let currentCategoryId = null;
+        let currentPage = 1;
+        let currentProducts = [];
+
+        // Khi đổi danh mục
+        document.getElementById('category-filter').addEventListener('change', function () {
+            currentCategoryId = this.value || null;
+            currentPage = 1;
+            currentProducts = []; // reset
+            if (currentCategoryId) {
+                loadCategoryProducts(currentCategoryId);
+            } else {
+                currentProducts = [...allProducts];
+                renderProducts(currentProducts);
+            }
+        });
+        // Nút Load More
+        document.getElementById('load-more-btn').addEventListener('click', function () {
+            if (currentCategoryId) {
+                currentPage++;
+                loadCategoryProducts(currentCategoryId, true);
+            } else {
+                currentPage++;
+                loadAllProducts(true); // nếu không lọc
+            }
+        });
     </script>
 </body>
+
 </html>
